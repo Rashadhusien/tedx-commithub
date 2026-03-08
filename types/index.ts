@@ -128,3 +128,10 @@ export interface NotificationWithContext {
   metadata: Record<string, string> | null;
   createdAt: Date;
 }
+
+export interface Committee {
+  id: string;
+  name: string;
+  description: string | null;
+  leaderId: string | null;
+}

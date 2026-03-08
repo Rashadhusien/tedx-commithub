@@ -6,6 +6,8 @@ import { users, committees } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import MembersTable from "@/components/members/members-table";
 import InviteMemberButton from "@/components/members/invite-member-button";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export const metadata: Metadata = { title: "Members" };
 
@@ -37,7 +39,9 @@ export default async function MembersPage() {
             {allMembers.length} total members
           </p>
         </div>
-        <InviteMemberButton />
+        <Button asChild>
+          <Link href="/dashboard/members/invite">Invite Member</Link>
+        </Button>
       </div>
       <MembersTable members={allMembers} />
     </div>

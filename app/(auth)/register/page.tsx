@@ -9,11 +9,11 @@ import RegisterForm from "@/components/auth/register-form";
 export const metadata: Metadata = { title: "Complete Registration" };
 
 interface Props {
-  searchParams: { token?: string };
+  searchParams: Promise<{ token?: string }>;
 }
 
 export default async function RegisterPage({ searchParams }: Props) {
-  const token = searchParams.token;
+  const { token } = await searchParams;
   if (!token) notFound();
 
   // Validate invite token

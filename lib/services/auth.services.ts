@@ -51,52 +51,78 @@ export const logInWithCredentails = async (
   return { success: true };
 };
 
-// export const registerWithCredentails = async (params: AuthCredentails) => {
-//   const validationResult = await action({ params, schema: registerSchema });
+export const registerWithCredentails = async (params: AuthCredentails) => {
+  // const validationResult = await action({ params, schema: registerSchema });
 
-//   if (validationResult instanceof Error) {
-//     return handleError(validationResult) as ErrorResponse;
-//   }
-//   const { name, email, password } = validationResult.params!;
+  // if (validationResult instanceof Error) {
+  //   return handleError(validationResult) as ErrorResponse;
+  // }
+  const { name, email, password, inviteToken } = params;
 
-//   try {
-//     // Check if user already exists by email
-//     const [existingUser] = await db
-//       .select()
-//       .from(users)
-//       .where(eq(users.email, email));
+  try {
+    // Find user by invite token
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.inviteToken, inviteToken));
 
-//     if (existingUser) {
-//       return {
-//         success: false,
-//         error: {
-//           message: "User already exists",
-//         },
-//       };
-//     }
+    if (!existingUser) {
+      return {
+        success: false,
+        error: {
+          message: "Invalid or expired invitation token",
+        },
+      };
+    }
 
-//     // Hash the password
-//     const hashedPassword = await bcrypt.hash(password, 12);
+    // Check if invitation has expired
+    if (
+      existingUser.inviteExpiresAt &&
+      existingUser.inviteExpiresAt < new Date()
+    ) {
+      return {
+        success: false,
+        error: {
+          message: "Invitation token has expired",
+        },
+      };
+    }
 
-//     // Create new user in database (without password)
-//     const newUser = await db
-//       .insert(users)
-//       .values({
-//         name,
-//         email,
-//         passwordHash: hashedPassword,
-//         role: "member",
-//       })
-//       .returning();
+    // Verify email matches the invited email
+    if (existingUser.email !== email) {
+      return {
+        success: false,
+        error: {
+          message: "Email does not match the invitation",
+        },
+      };
+    }
 
-//     console.log("New user created:", newUser);
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-//     await signIn("credentials", { email, password, redirect: false });
-//     return { success: true };
-//   } catch (error) {
-//     return handleError(error) as ErrorResponse;
-//   }
-// };
+    // Update user with registration details and activate account
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        name,
+        passwordHash: hashedPassword,
+        isActive: true,
+        inviteToken: null, // Clear the invite token
+        inviteExpiresAt: null, // Clear the expiry
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, existingUser.id))
+      .returning();
+
+    console.log("User registered and activated:", updatedUser);
+
+    await signIn("credentials", { email, password, redirect: false });
+    return { success: true };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+};
 
 export async function signOutAction() {
   await signOut({ redirectTo: "/login" });

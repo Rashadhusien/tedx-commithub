@@ -1,6 +1,7 @@
 import logger from "../logger";
 import handleError from "./error";
 import { RequestError } from "../http-errors";
+import { ApiResponse } from "@/types";
 interface FetchOptions extends RequestInit {
   timeout?: number;
 }
@@ -12,7 +13,7 @@ function isError(error: unknown): error is Error {
 export async function fetchHandler<T>(
   url: string,
   options: FetchOptions = {},
-): Promise<ActionResponse<T>> {
+): Promise<ApiResponse<T>> {
   const {
     timeout = 100000,
     headers: customHeaders = {},
@@ -47,6 +48,6 @@ export async function fetchHandler<T>(
     } else {
       logger.error(`Error fetching ${url}: ${error.message}`);
     }
-    return handleError(error) as ActionResponse<T>;
+    return handleError(error) as ApiResponse<T>;
   }
 }

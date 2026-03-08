@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { registerWithCredentails } from "@/lib/services/auth.services";
 
 interface Props {
   token: string;
@@ -31,22 +32,18 @@ export default function RegisterForm({ token, email }: Props) {
     }
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          name,
-          password,
-          confirmPassword,
-        }),
+      const response = await registerWithCredentails({
+        inviteToken: token,
+        name,
+        email,
+        password,
+        confirmPassword,
       });
 
-      if (response.ok) {
+      if (response.success) {
         router.push("/login?message=Registration successful");
       } else {
-        const data = await response.json();
-        setError(data.error || "Registration failed");
+        setError(response.error?.message || "Registration failed");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
@@ -63,7 +60,9 @@ export default function RegisterForm({ token, email }: Props) {
           id="name"
           type="text"
           value={name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setName(e.target.value)
+          }
           placeholder="Enter your full name"
           required
         />
@@ -84,7 +83,9 @@ export default function RegisterForm({ token, email }: Props) {
           id="password"
           type="password"
           value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setPassword(e.target.value)
+          }
           placeholder="Create a password"
           required
         />
@@ -95,7 +96,9 @@ export default function RegisterForm({ token, email }: Props) {
           id="confirmPassword"
           type="password"
           value={confirmPassword}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setConfirmPassword(e.target.value)
+          }
           placeholder="Confirm your password"
           required
         />

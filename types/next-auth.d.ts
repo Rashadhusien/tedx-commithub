@@ -8,6 +8,7 @@ declare module "next-auth" {
       role: string;
       committeeId: string | null;
       points: number;
+      name: string;
     } & DefaultSession["user"];
   }
 }
