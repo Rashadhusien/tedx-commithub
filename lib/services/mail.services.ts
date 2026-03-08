@@ -21,7 +21,7 @@ export async function sendInviteEmail({
     });
 
     const { data, error } = await resend.emails.send({
-      from: "CommitHub <onboarding@resend.dev>",
+      from: "TEDx New Cairo STEM Youth <no-reply@updates.rashadhussein.com>",
       to: [email],
       subject: "You've been invited to join CommitHub",
       html: await render(

@@ -36,7 +36,7 @@ export function EmailTemplate({ firstName, inviteToken }: EmailTemplateProps) {
             letterSpacing: "2px",
           }}
         >
-          TEDx
+          TEDx New Cairo STEM Youth
         </h1>
         <p
           style={{
@@ -198,6 +198,7 @@ export function EmailTemplate({ firstName, inviteToken }: EmailTemplateProps) {
           style={{
             color: "#999",
             fontSize: "12px",
+
             margin: "0",
             lineHeight: "1.4",
           }}
