@@ -7,10 +7,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
+import { IconSquareToggle } from "@tabler/icons-react";
 
 // Action column type
 export interface ActionColumn<T = unknown> {
-  label: string;
+  label: string | ((row: T) => string);
   icon?: React.ReactNode;
   onClick: (row: T) => void;
   variant?:
@@ -19,7 +20,16 @@ export interface ActionColumn<T = unknown> {
     | "outline"
     | "secondary"
     | "ghost"
-    | "link";
+    | "link"
+    | ((
+        row: T,
+      ) =>
+        | "default"
+        | "destructive"
+        | "outline"
+        | "secondary"
+        | "ghost"
+        | "link");
   disabled?: (row: T) => boolean;
 }
 
@@ -44,18 +54,24 @@ export function createActionsColumn<T>(
           <DropdownMenuContent align="end">
             {actions.map((action, index) => {
               const isDisabled = action.disabled?.(rowData);
+              const labelText =
+                typeof action.label === "function"
+                  ? action.label(rowData)
+                  : action.label;
+              const variant =
+                typeof action.variant === "function"
+                  ? action.variant(rowData)
+                  : action.variant;
 
               return (
                 <DropdownMenuItem
                   key={index}
                   onClick={() => action.onClick(rowData)}
                   disabled={isDisabled}
-                  className={
-                    action.variant === "destructive" ? "text-red-600" : ""
-                  }
+                  className={variant === "destructive" ? "text-red-600" : ""}
                 >
                   {action.icon}
-                  {action.label}
+                  {labelText}
                 </DropdownMenuItem>
               );
             })}
@@ -150,5 +166,17 @@ export function createCurrencyColumn<T>(
         currency: "USD",
       }).format(value);
     },
+  };
+}
+
+export function createToggleActiveAction<T>(
+  onToggleActive: (row: T) => void,
+): ActionColumn<T> {
+  return {
+    label: (row: T) =>
+      ((row as any).isActive ? "Deactivate" : "Activate") as string,
+    icon: <IconSquareToggle className="mr-2 h-4 w-4" />,
+    onClick: onToggleActive,
+    variant: (row: T) => ((row as any).isActive ? "destructive" : "default"),
   };
 }

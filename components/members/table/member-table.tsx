@@ -6,16 +6,25 @@ import { Badge } from "@/components/ui/badge";
 import UserAvatar from "@/components/User-avatar";
 import { Member } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
+import {
+  createActionsColumn,
+  createDeleteAction,
+  createEditAction,
+  createToggleActiveAction,
+  createViewAction,
+} from "@/components/ui/table-columns";
 
 export function MemberTable({
   data,
   onView,
   onEdit,
+  onToggleActive,
   onDelete,
 }: {
   data: Member[];
   onView?: (member: Member) => void;
   onEdit?: (member: Member) => void;
+  onToggleActive?: (member: Member) => void;
   onDelete?: (member: Member) => void;
 }) {
   const columns: ColumnDef<Member>[] = [
@@ -55,7 +64,25 @@ export function MemberTable({
       accessorKey: "role",
       header: "Role",
       cell: ({ row }) => {
-        return <Badge>{row.getValue("role")}</Badge>;
+        return (
+          <Badge
+            variant={row.getValue("role") === "admin" ? "default" : "secondary"}
+          >
+            {row.getValue("role")}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "isActive",
+      header: "Status",
+      cell: ({ row }) => {
+        const isActive = row.getValue("isActive") as boolean;
+        return isActive ? (
+          <Badge variant="default">Active</Badge>
+        ) : (
+          <Badge variant="destructive">Inactive</Badge>
+        );
       },
     },
     {
@@ -86,6 +113,13 @@ export function MemberTable({
         return date.toLocaleDateString();
       },
     },
+
+    createActionsColumn([
+      ...(onView ? [createViewAction(onView)] : []),
+      ...(onEdit ? [createEditAction(onEdit)] : []),
+      ...(onDelete ? [createDeleteAction(onDelete)] : []),
+      ...(onToggleActive ? [createToggleActiveAction(onToggleActive)] : []),
+    ]),
   ];
 
   return (

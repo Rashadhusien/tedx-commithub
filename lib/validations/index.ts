@@ -69,6 +69,10 @@ export const updateProfileSchema = z
     path: ["currentPassword"],
   });
 
+export const deleteMemberSchema = z.object({
+  id: z.string().uuid(),
+});
+
 // ── Tasks ────────────────────────────────────────────────────────────────────
 export const createTaskSchema = z.object({
   title: z.string().min(3).max(200),
