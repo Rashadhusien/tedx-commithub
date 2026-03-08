@@ -189,8 +189,11 @@ export function EmailTemplate({ firstName, inviteToken }: EmailTemplateProps) {
           }}
         >
           Questions? Reach out to our team at{" "}
-          <a href="mailto:team@tedx.com" style={{ color: "#e62b1e" }}>
-            team@tedx.com
+          <a
+            href="mailto:hello@updates.rashadhussein.com"
+            style={{ color: "#e62b1e" }}
+          >
+            hello@updates.rashadhussein.com
           </a>
         </p>
 

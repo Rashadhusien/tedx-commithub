@@ -21,12 +21,13 @@ export async function sendInviteEmail({
     });
 
     const { data, error } = await resend.emails.send({
-      from: "TEDx New Cairo STEM Youth <no-reply@updates.rashadhussein.com>",
+      from: "CommitHub <hello@updates.rashadhussein.com>",
       to: [email],
-      subject: "You've been invited to join CommitHub",
+      subject: "TEDx CommitHub Invitation - Complete Your Registration",
       html: await render(
         EmailTemplate({ firstName: inviterName, inviteToken }),
       ),
+      replyTo: "hello@updates.rashadhussein.com",
     });
 
     if (error) {
