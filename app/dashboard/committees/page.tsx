@@ -6,6 +6,8 @@ import { committees, users } from "@/lib/schema";
 import { count, eq } from "drizzle-orm";
 import CommitteesGrid from "@/components/committees/committees-grid";
 import CreateCommitteeButton from "@/components/committees/create-committee-button";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export const metadata: Metadata = { title: "Committees" };
 
@@ -34,7 +36,11 @@ export default async function CommitteesPage() {
             {committeesWithCounts.length} committees
           </p>
         </div>
-        {currentUser.role === "admin" && <CreateCommitteeButton />}
+        {currentUser.role === "admin" && (
+          <Button asChild>
+            <Link href="/dashboard/committees/create">Create Committee</Link>
+          </Button>
+        )}
       </div>
       <CommitteesGrid
         committees={committeesWithCounts}

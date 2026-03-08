@@ -38,6 +38,7 @@ export default function RegisterForm({ token, email }: Props) {
     defaultValues: {
       name: "",
       password: "",
+      email,
       confirmPassword: "",
       inviteToken: token,
     },
@@ -50,7 +51,7 @@ export default function RegisterForm({ token, email }: Props) {
       const result = await registerWithCredentails({
         inviteToken: data.inviteToken,
         name: data.name,
-        email,
+        email: data.email,
         password: data.password,
         confirmPassword: data.confirmPassword,
       });
@@ -64,7 +65,10 @@ export default function RegisterForm({ token, email }: Props) {
         router.push("/login?message=Registration successful");
       } else {
         toast.error("Registration Failed", {
-          description: result?.error?.message || "Registration failed",
+          description:
+            typeof result?.error === "string"
+              ? result.error
+              : "Registration failed",
         });
       }
     } catch (error) {
@@ -113,18 +117,25 @@ export default function RegisterForm({ token, email }: Props) {
             )}
           />
 
-          <div className="space-y-2">
-            <FieldLabel htmlFor="register-email">Email</FieldLabel>
-            <InputGroup>
-              <Input
-                id="register-email"
-                type="email"
-                value={email}
-                disabled
-                className="bg-muted"
-              />
-            </InputGroup>
-          </div>
+          <Controller
+            name="email"
+            control={form.control}
+            render={({ field }) => (
+              <Field>
+                <FieldLabel htmlFor="register-email">Email</FieldLabel>
+                <InputGroup>
+                  <Input
+                    {...field}
+                    id="register-email"
+                    type="email"
+                    value={email}
+                    disabled
+                    className="bg-muted"
+                  />
+                </InputGroup>
+              </Field>
+            )}
+          />
 
           <Controller
             name="password"
@@ -165,8 +176,8 @@ export default function RegisterForm({ token, email }: Props) {
                   disabled={form.formState.isSubmitting}
                   ariaInvalid={fieldState.invalid}
                 />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
+                {fieldState.error && (
+                  <FieldError>{fieldState.error.message}</FieldError>
                 )}
               </Field>
             )}

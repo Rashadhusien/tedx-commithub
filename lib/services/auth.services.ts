@@ -4,23 +4,36 @@ import { db } from "../db";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { users } from "../schema";
-import { loginSchema } from "../validations";
+import { loginSchema, registerSchema } from "../validations";
 import bcrypt from "bcryptjs";
 import { signIn } from "@/auth";
 
 import { signOut } from "@/auth";
 import { ErrorResponse, AuthCredentails, ApiResponse } from "@/types";
+import { logActivity } from "./activity-log.services";
 
 export const logInWithCredentails = async (
   params: Pick<AuthCredentails, "email" | "password">,
 ): Promise<ApiResponse> => {
-  const validationResult = await action({ params, schema: loginSchema });
+  const validationResult = await action({
+    params,
+    schema: loginSchema,
+    actionFn: async (validatedParams) => {
+      const { email, password } = validatedParams;
+      // Your action logic here
+      return { email, password };
+    },
+  });
 
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { email, password } = validationResult.params!;
+  if (!validationResult.success) {
+    return handleError(validationResult.error) as ErrorResponse;
+  }
+
+  const { email, password } = validationResult.data;
 
   const [existingUser] = await db
     .select()
@@ -48,16 +61,39 @@ export const logInWithCredentails = async (
 
   await signIn("credentials", { email, password, redirect: false });
 
+  await logActivity({
+    eventType: "user.login",
+    actorId: existingUser.id,
+    targetId: existingUser.id,
+    targetType: "user",
+    metadata: {
+      email: existingUser.email,
+    },
+  });
+
   return { success: true };
 };
 
 export const registerWithCredentails = async (params: AuthCredentails) => {
-  // const validationResult = await action({ params, schema: registerSchema });
+  const validationResult = await action({
+    params,
+    schema: registerSchema,
+    actionFn: async (validatedParams) => {
+      const { name, email, password, inviteToken } = validatedParams;
+      // Your action logic here
+      return { name, email, password, inviteToken };
+    },
+  });
 
-  // if (validationResult instanceof Error) {
-  //   return handleError(validationResult) as ErrorResponse;
-  // }
-  const { name, email, password, inviteToken } = params;
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  if (!validationResult.success) {
+    return handleError(validationResult.error) as ErrorResponse;
+  }
+
+  const { name, email, password, inviteToken } = validationResult.data;
 
   try {
     // Find user by invite token
@@ -118,6 +154,17 @@ export const registerWithCredentails = async (params: AuthCredentails) => {
     console.log("User registered and activated:", updatedUser);
 
     await signIn("credentials", { email, password, redirect: false });
+
+    await logActivity({
+      eventType: "user.activated",
+      actorId: updatedUser.id,
+      targetId: updatedUser.id,
+      targetType: "user",
+      metadata: {
+        name: updatedUser.name,
+        email: updatedUser.email,
+      },
+    });
     return { success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;

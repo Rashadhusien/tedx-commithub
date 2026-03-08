@@ -20,7 +20,6 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { InputGroup } from "@/components/ui/input-group";
 import { inviteMemberSchema } from "@/lib/validations";
-import { inviteMember } from "@/lib/services/member.services";
 import {
   Select,
   SelectContent,
@@ -90,7 +89,7 @@ const InviteMemberForm = () => {
       } else {
         toast.error("Error", {
           description:
-            result.message || "Failed to invite member. Please try again.",
+            result.error || "Failed to invite member. Please try again.",
         });
       }
     } catch (error) {

@@ -6,7 +6,6 @@ import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import type { Resolver } from "react-hook-form";
-import { signIn } from "@/auth";
 
 import { Button } from "@/components/ui/button";
 import {

@@ -135,3 +135,11 @@ export interface Committee {
   description: string | null;
   leaderId: string | null;
 }
+
+export interface Member {
+  id: string;
+  name: string;
+  email: string;
+  points: number;
+  isActive: boolean;
+}
