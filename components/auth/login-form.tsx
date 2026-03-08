@@ -1,82 +1,144 @@
-// src/components/auth/login-form.tsx
 "use client";
-import { useState } from "react";
-import { signIn } from "@/auth";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useForm, Controller } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import type { Resolver } from "react-hook-form";
+import { signIn } from "@/auth";
+
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { InputGroup } from "@/components/ui/input-group";
+import { TogglePassword } from "@/components/ui/toggle-password";
+import { loginSchema } from "@/lib/validations";
 import { logInWithCredentails } from "@/lib/services/auth.services";
 
+type LoginFormData = z.infer<typeof loginSchema>;
+
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema) as Resolver<LoginFormData>,
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-    console.log(email, password);
-
+  const handleSubmit = async (data: LoginFormData) => {
     try {
-      const result = await logInWithCredentails({ email, password });
+      console.log("Attempting login:", data.email);
+
+      const result = await logInWithCredentails({
+        email: data.email,
+        password: data.password,
+      });
 
       console.log("SignIn result:", result);
 
       if (result?.error) {
         console.error("SignIn error:", result.error);
-        setError("Invalid email or password");
-      } else if (result?.success) {
-        router.push("/dashboard");
+        toast.error("Login Failed", {
+          description: "Invalid email or password",
+        });
       } else {
-        setError("Unexpected error occurred");
+        toast.success("Success", {
+          description: "Logged in successfully",
+        });
+        router.push("/dashboard");
       }
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Error", {
+        description: "An error occurred. Please try again.",
+      });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setEmail(e.target.value)
-          }
-          placeholder="Enter your email"
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your password"
-          required
-        />
-      </div>
-      {error && (
-        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-          {error}
-        </div>
-      )}
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Signing in..." : "Sign In"}
-      </Button>
-    </form>
+    <Card className="w-full sm:max-w-md">
+      <CardHeader>
+        <CardTitle>Sign In</CardTitle>
+        <CardDescription>
+          Enter your credentials to access your account
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          id="login-form"
+          className="space-y-4"
+          onSubmit={form.handleSubmit(handleSubmit)}
+        >
+          <Controller
+            name="email"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="login-email">
+                  Email <span className="text-orange-600">*</span>
+                </FieldLabel>
+                <InputGroup>
+                  <Input
+                    {...field}
+                    id="login-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    aria-invalid={fieldState.invalid}
+                  />
+                </InputGroup>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="password"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="login-password">
+                  Password <span className="text-orange-600">*</span>
+                </FieldLabel>
+                <TogglePassword
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Enter your password"
+                  id="login-password"
+                  disabled={form.formState.isSubmitting}
+                  ariaInvalid={fieldState.invalid}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+        </form>
+      </CardContent>
+      <CardFooter>
+        <Button
+          type="submit"
+          form="login-form"
+          disabled={form.formState.isSubmitting}
+          className="w-full"
+        >
+          {form.formState.isSubmitting ? "Signing in..." : "Sign In"}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

@@ -1,10 +1,26 @@
-// src/components/auth/register-form.tsx
 "use client";
-import { useState } from "react";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useForm, Controller } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import type { Resolver } from "react-hook-form";
+
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { InputGroup } from "@/components/ui/input-group";
+import { TogglePassword } from "@/components/ui/toggle-password";
+import { registerSchema } from "@/lib/validations";
 import { registerWithCredentails } from "@/lib/services/auth.services";
 
 interface Props {
@@ -12,105 +28,163 @@ interface Props {
   email: string;
 }
 
+type RegisterFormData = z.infer<typeof registerSchema>;
+
 export default function RegisterForm({ token, email }: Props) {
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema) as Resolver<RegisterFormData>,
+    defaultValues: {
+      name: "",
+      password: "",
+      confirmPassword: "",
+      inviteToken: token,
+    },
+  });
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
+  const handleSubmit = async (data: RegisterFormData) => {
     try {
-      const response = await registerWithCredentails({
-        inviteToken: token,
-        name,
+      console.log("Attempting registration:", data.name);
+
+      const result = await registerWithCredentails({
+        inviteToken: data.inviteToken,
+        name: data.name,
         email,
-        password,
-        confirmPassword,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
       });
 
-      if (response.success) {
+      console.log("Registration result:", result);
+
+      if (result?.success) {
+        toast.success("Success", {
+          description: "Registration completed successfully",
+        });
         router.push("/login?message=Registration successful");
       } else {
-        setError(response.error?.message || "Registration failed");
+        toast.error("Registration Failed", {
+          description: result?.error?.message || "Registration failed",
+        });
       }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("Error", {
+        description: "An error occurred. Please try again.",
+      });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
-        <Input
-          id="name"
-          type="text"
-          value={name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setName(e.target.value)
-          }
-          placeholder="Enter your full name"
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          disabled
-          className="bg-muted"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setPassword(e.target.value)
-          }
-          placeholder="Create a password"
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
-        <Input
-          id="confirmPassword"
-          type="password"
-          value={confirmPassword}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setConfirmPassword(e.target.value)
-          }
-          placeholder="Confirm your password"
-          required
-        />
-      </div>
-      {error && (
-        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-          {error}
-        </div>
-      )}
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Creating account..." : "Complete Registration"}
-      </Button>
-    </form>
+    <Card className="w-full sm:max-w-md">
+      <CardHeader>
+        <CardTitle>Complete Registration</CardTitle>
+        <CardDescription>
+          Create your account to join TEDx CommitHub
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          id="register-form"
+          className="space-y-4"
+          onSubmit={form.handleSubmit(handleSubmit)}
+        >
+          <Controller
+            name="name"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="register-name">
+                  Name <span className="text-orange-600">*</span>
+                </FieldLabel>
+                <InputGroup>
+                  <Input
+                    {...field}
+                    id="register-name"
+                    type="text"
+                    placeholder="Enter your full name"
+                    aria-invalid={fieldState.invalid}
+                  />
+                </InputGroup>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <div className="space-y-2">
+            <FieldLabel htmlFor="register-email">Email</FieldLabel>
+            <InputGroup>
+              <Input
+                id="register-email"
+                type="email"
+                value={email}
+                disabled
+                className="bg-muted"
+              />
+            </InputGroup>
+          </div>
+
+          <Controller
+            name="password"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="register-password">
+                  Password <span className="text-orange-600">*</span>
+                </FieldLabel>
+                <TogglePassword
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Create a password"
+                  id="register-password"
+                  disabled={form.formState.isSubmitting}
+                  ariaInvalid={fieldState.invalid}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="confirmPassword"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="register-confirm-password">
+                  Confirm Password <span className="text-orange-600">*</span>
+                </FieldLabel>
+                <TogglePassword
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Confirm your password"
+                  id="register-confirm-password"
+                  disabled={form.formState.isSubmitting}
+                  ariaInvalid={fieldState.invalid}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+        </form>
+      </CardContent>
+      <CardFooter>
+        <Button
+          type="submit"
+          form="register-form"
+          disabled={form.formState.isSubmitting}
+          className="w-full"
+        >
+          {form.formState.isSubmitting
+            ? "Creating account..."
+            : "Complete Registration"}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
