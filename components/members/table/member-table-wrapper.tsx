@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { Member } from "@/types";
 import { MemberTable } from "./member-table";
 import { memberActivate } from "@/lib/services/member.services";
-import { Session } from "next-auth";
 
 interface MemberTableWrapperProps {
   data: Member[];

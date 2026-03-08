@@ -29,6 +29,47 @@ export async function getAllMembers(): Promise<ApiResponse<Member[]>> {
   }
 }
 
+//get all leaders
+export async function getLeaders(): Promise<ApiResponse<Member[]>> {
+  try {
+    const leaders = await db
+      .select({
+        ...getTableColumns(users),
+        committeeName: committees.name,
+      })
+      .from(users)
+      .leftJoin(committees, eq(users.committeeId, committees.id))
+      .where(eq(users.role, "leader"))
+      .orderBy(users.name);
+    return {
+      success: true,
+      data: leaders,
+    };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getActiveMembers(): Promise<ApiResponse<Member[]>> {
+  try {
+    const activeMembers = await db
+      .select({
+        ...getTableColumns(users),
+        committeeName: committees.name,
+      })
+      .from(users)
+      .leftJoin(committees, eq(users.committeeId, committees.id))
+      .where(eq(users.isActive, true))
+      .orderBy(users.name);
+    return {
+      success: true,
+      data: activeMembers,
+    };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
 export async function memberActivate(params: {
   id: string;
 }): Promise<ApiResponse<void>> {

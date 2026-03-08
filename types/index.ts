@@ -134,6 +134,10 @@ export interface Committee {
   name: string;
   description: string | null;
   leaderId: string | null;
+  leaderName?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  memberCount?: number;
 }
 
 export interface Member {
