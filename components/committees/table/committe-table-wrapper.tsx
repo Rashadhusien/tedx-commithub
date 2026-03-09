@@ -4,18 +4,26 @@ import { Committee } from "@/types";
 import { CommitteeTable } from "./committee-table";
 import { toast } from "sonner";
 import { deleteCommittee } from "@/lib/services/committees.services";
+import { useRouter } from "next/navigation";
 
 interface CommitteeTableWrapperProps {
   data: Committee[];
+  isAdmin?: boolean;
 }
 
-export function CommitteeTableWrapper({ data }: CommitteeTableWrapperProps) {
+export function CommitteeTableWrapper({
+  data,
+  isAdmin = false,
+}: CommitteeTableWrapperProps) {
+  const router = useRouter();
   const handleView = (committee: Committee) => {
     console.log("View committee:", committee);
+    router.push(`/dashboard/committees/${committee.id}/view`);
   };
 
   const handleEdit = (committee: Committee) => {
     console.log("Edit committee:", committee);
+    router.push(`/dashboard/committees/${committee.id}/edit`);
   };
 
   const handleDelete = async (committee: Committee) => {
@@ -44,6 +52,7 @@ export function CommitteeTableWrapper({ data }: CommitteeTableWrapperProps) {
   return (
     <CommitteeTable
       data={data}
+      isAdmin={isAdmin}
       onView={handleView}
       onEdit={handleEdit}
       onDelete={handleDelete}

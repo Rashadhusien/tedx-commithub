@@ -47,6 +47,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: user.name,
             email: user.email,
             role: user.role,
+            committeeId: user.committeeId,
+            points: user.points,
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -61,6 +63,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = (user as { role: string }).role;
         token.name = (user as { name: string }).name;
+        token.committeeId = (
+          user as { committeeId: string | null }
+        ).committeeId;
+        token.points = (user as { points: number }).points;
       }
       return token;
     },
@@ -70,6 +76,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.sub!;
         session.user.role = token.role as string;
         session.user.name = token.name as string;
+        session.user.committeeId = token.committeeId as string | null;
+        session.user.points = token.points as number;
       }
       return session;
     },

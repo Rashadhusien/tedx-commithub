@@ -20,12 +20,14 @@ export function MemberTable({
   onEdit,
   onToggleActive,
   onDelete,
+  isAdmin = false,
 }: {
   data: Member[];
   onView?: (member: Member) => void;
   onEdit?: (member: Member) => void;
   onToggleActive?: (member: Member) => void;
   onDelete?: (member: Member) => void;
+  isAdmin: boolean;
 }) {
   const columns: ColumnDef<Member>[] = [
     {
@@ -114,12 +116,15 @@ export function MemberTable({
       },
     },
 
-    createActionsColumn([
-      ...(onView ? [createViewAction(onView)] : []),
-      ...(onEdit ? [createEditAction(onEdit)] : []),
-      ...(onDelete ? [createDeleteAction(onDelete)] : []),
-      ...(onToggleActive ? [createToggleActiveAction(onToggleActive)] : []),
-    ]),
+    createActionsColumn(
+      [
+        ...(onView ? [createViewAction(onView)] : []),
+        ...(onEdit ? [createEditAction(onEdit)] : []),
+        ...(onDelete ? [createDeleteAction(onDelete)] : []),
+        ...(onToggleActive ? [createToggleActiveAction(onToggleActive)] : []),
+      ],
+      isAdmin,
+    ),
   ];
 
   return (

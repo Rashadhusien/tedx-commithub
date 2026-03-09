@@ -52,7 +52,10 @@ export default async function CommitteesPage() {
       /> */}
 
       <div className="flex justify-center items-center">
-        <CommitteeTableWrapper data={committees} />
+        <CommitteeTableWrapper
+          data={committees}
+          isAdmin={currentUser.role === "admin"}
+        />
       </div>
     </div>
   );

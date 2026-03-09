@@ -144,6 +144,9 @@ export interface Member {
   id: string;
   name: string;
   email: string;
+  role: UserRole;
+  committeeId: string | null;
   points: number;
   isActive: boolean;
+  committeeName?: string | null;
 }

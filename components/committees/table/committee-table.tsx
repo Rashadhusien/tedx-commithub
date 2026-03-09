@@ -15,11 +15,13 @@ import {
 
 export function CommitteeTable({
   data,
+  isAdmin = false,
   onView,
   onEdit,
   onDelete,
 }: {
   data: Committee[];
+  isAdmin?: boolean;
   onView?: (committee: Committee) => void;
   onEdit?: (committee: Committee) => void;
   onDelete?: (committee: Committee) => void;
@@ -91,11 +93,14 @@ export function CommitteeTable({
       },
     },
 
-    createActionsColumn([
-      ...(onView ? [createViewAction(onView)] : []),
-      ...(onEdit ? [createEditAction(onEdit)] : []),
-      ...(onDelete ? [createDeleteAction(onDelete)] : []),
-    ]),
+    createActionsColumn(
+      [
+        ...(onView ? [createViewAction(onView)] : []),
+        ...(onEdit ? [createEditAction(onEdit)] : []),
+        ...(onDelete ? [createDeleteAction(onDelete)] : []),
+      ],
+      isAdmin,
+    ),
   ];
 
   return (

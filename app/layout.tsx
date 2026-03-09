@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+// import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = localFont({
   src: "./fonts/InterVF.ttf",

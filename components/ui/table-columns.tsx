@@ -36,12 +36,15 @@ export interface ActionColumn<T = unknown> {
 // Generic action column
 export function createActionsColumn<T>(
   actions: ActionColumn<T>[],
+  isAdmin: boolean = false,
 ): ColumnDef<T> {
   return {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
       const rowData = row.original;
+
+      if (!isAdmin) return null;
 
       return (
         <DropdownMenu>

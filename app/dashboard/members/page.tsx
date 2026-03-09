@@ -10,7 +10,7 @@ import { getAllMembers } from "@/lib/services/member.services";
 export const metadata: Metadata = { title: "Members" };
 
 export default async function MembersPage() {
-  await requireAdmin();
+  const currentUser = await requireAdmin();
 
   const { data: allMembers, success } = await getAllMembers();
 
@@ -42,7 +42,10 @@ export default async function MembersPage() {
       </div>
 
       <div className="flex justify-center items-center">
-        <MemberTableWrapper data={allMembers} />
+        <MemberTableWrapper
+          data={allMembers}
+          isAdmin={currentUser.role === "admin"}
+        />
       </div>
     </div>
   );

@@ -43,7 +43,11 @@ export const createCommitteeSchema = z.object({
   leaderId: z.string().uuid().optional(),
 });
 
-export const updateCommitteeSchema = createCommitteeSchema.partial();
+export const updateCommitteeSchema = z.object({
+  name: z.string().min(2).max(100).optional(),
+  description: z.string().max(500).optional(),
+  leaderId: z.string().uuid().optional(),
+});
 
 // ── Members ──────────────────────────────────────────────────────────────────
 export const inviteMemberSchema = z.object({

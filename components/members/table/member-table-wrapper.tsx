@@ -4,12 +4,18 @@ import { toast } from "sonner";
 import { Member } from "@/types";
 import { MemberTable } from "./member-table";
 import { memberActivate } from "@/lib/services/member.services";
+import { useRouter } from "next/navigation";
 
 interface MemberTableWrapperProps {
   data: Member[];
+  isAdmin: boolean;
 }
 
-export function MemberTableWrapper({ data }: MemberTableWrapperProps) {
+export function MemberTableWrapper({ data, isAdmin }: MemberTableWrapperProps) {
+  const router = useRouter();
+  const onEdit = (member: Member) => {
+    router.push(`/dashboard/members/${member.id}/edit`);
+  };
   const handleToggleActive = async (member: Member) => {
     console.log("Toggle active member:", member);
 
@@ -34,5 +40,12 @@ export function MemberTableWrapper({ data }: MemberTableWrapperProps) {
     }
   };
 
-  return <MemberTable data={data} onToggleActive={handleToggleActive} />;
+  return (
+    <MemberTable
+      data={data}
+      onEdit={onEdit}
+      onToggleActive={handleToggleActive}
+      isAdmin={isAdmin}
+    />
+  );
 }

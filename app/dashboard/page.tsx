@@ -2,11 +2,11 @@
 import type { Metadata } from "next";
 import { requireAuth } from "@/lib/auth/helpers";
 import { db } from "@/lib/db";
-import { users, tasks, committees, pointsLedger } from "@/lib/schema";
-import { count, eq, and, gte, sql } from "drizzle-orm";
+import { users, tasks, pointsLedger } from "@/lib/schema";
+import { count, eq, sql } from "drizzle-orm";
 import StatsCards from "@/components/dashboard/stats-cards";
 import TaskStatusChart from "@/components/dashboard/task-status-chart";
-import PointsChart from "@/components/dashboard/points-chart";
+// import PointsChart from "@/components/dashboard/points-chart";
 import RecentActivity from "@/components/dashboard/recent-activity";
 import TopLeaderboard from "@/components/dashboard/top-leaderboard";
 import CommitteeBreakdown from "@/components/dashboard/committee-breakdown";
