@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
-import UserAvatar from "@/components/User-avatar";
+import UserAvatar from "@/components/layout/user-avatar";
 import { Committee } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {

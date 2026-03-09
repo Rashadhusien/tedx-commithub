@@ -23,8 +23,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 
@@ -61,102 +59,95 @@ export function AppSidebar({ user }: AppSidebarProps) {
   };
 
   return (
-    <SidebarProvider>
-      <Sidebar collapsible="icon" variant="inset">
-        <SidebarHeader>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarTrigger />
-            </SidebarMenuItem>
-          </SidebarMenu>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <span className="text-lg font-bold font-space-grotesk">
-                  CommitHub
-                </span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarHeader>
-
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Main</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {filteredNav.map((item) => {
-                  const Icon = ICON_MAP[item.icon];
-                  const isActive =
-                    pathname === item.href ||
-                    pathname.startsWith(item.href + "/");
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        tooltip={item.label}
-                      >
-                        <Link href={item.href} onClick={handleLinkClick}>
-                          <Icon className="w-4 h-4" />
-                          {item.label}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          <SidebarGroup>
-            <SidebarGroupLabel>System</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {filteredSystem.map((item) => {
-                  const Icon = ICON_MAP[item.icon];
-                  const isActive = pathname === item.href;
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        tooltip={item.label}
-                      >
-                        <Link href={item.href} onClick={handleLinkClick}>
-                          <Icon className="w-4 h-4" />
-                          {item.label}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-
-        <SidebarFooter>
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center shrink-0">
-              <span className="text-xs font-bold text-sidebar-foreground">
-                {user.name.charAt(0).toUpperCase()}
+    <Sidebar collapsible="icon" variant="inset" className="max-w-fit">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton>
+              <span className="text-lg font-bold font-space-grotesk">
+                CommitHub
               </span>
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {user.name}
-              </p>
-              <p className="text-xs text-sidebar-foreground/50 truncate capitalize">
-                {user.role}
-              </p>
-            </div>
-            <div className="ml-auto text-xs font-medium text-sidebar-accent">
-              {user.points}pts
-            </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {filteredNav.map((item) => {
+                const Icon = ICON_MAP[item.icon];
+                const isActive =
+                  pathname === item.href ||
+                  pathname.startsWith(item.href + "/");
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.label}
+                    >
+                      <Link href={item.href} onClick={handleLinkClick}>
+                        <Icon className="w-4 h-4" />
+                        {item.label}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>System</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {filteredSystem.map((item) => {
+                const Icon = ICON_MAP[item.icon];
+                const isActive = pathname === item.href;
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.label}
+                    >
+                      <Link href={item.href} onClick={handleLinkClick}>
+                        <Icon className="w-4 h-4" />
+                        {item.label}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center shrink-0">
+            <span className="text-xs font-bold text-sidebar-foreground">
+              {user.name.charAt(0).toUpperCase()}
+            </span>
           </div>
-        </SidebarFooter>
-      </Sidebar>
-    </SidebarProvider>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">
+              {user.name}
+            </p>
+            <p className="text-xs text-sidebar-foreground/50 truncate capitalize">
+              {user.role}
+            </p>
+          </div>
+          <div className="ml-auto text-xs font-medium text-sidebar-accent">
+            {user.points}pts
+          </div>
+        </div>
+      </SidebarFooter>
+    </Sidebar>
   );
 }

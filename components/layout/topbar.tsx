@@ -1,28 +1,21 @@
 // src/components/layout/topbar.tsx
+"use client";
 import Link from "next/link";
 import { Bell, LogOut } from "lucide-react";
-import { signOut } from "@/auth";
-import { db } from "@/lib/db";
-import { notifications } from "@/lib/schema/notifications";
-import { eq, and } from "drizzle-orm";
-import { count } from "drizzle-orm";
 import { ModeToggle } from "./theme-toggle";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { signOutAction } from "@/lib/services/auth.services";
 
 interface Props {
   user: { id: string; name: string; role: string };
+  unread?: number;
 }
 
-export default async function TopBar({ user }: Props) {
-  const [{ unread }] = await db
-    .select({ unread: count() })
-    .from(notifications)
-    .where(
-      and(eq(notifications.userId, user.id), eq(notifications.isRead, false)),
-    );
-
+export default function TopBar({ user, unread = 0 }: Props) {
   return (
-    <header className="h-16 border-b bg-card flex items-center justify-between px-6 shrink-0">
+    <header className="h-16 bg-card flex items-center justify-between px-6 shrink-0">
       <div className="flex items-center gap-2">
+        <SidebarTrigger className="md:hidden" />
         <span className="text-sm text-muted-foreground capitalize">
           {user.role}
         </span>
@@ -41,12 +34,7 @@ export default async function TopBar({ user }: Props) {
             </span>
           )}
         </Link>
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/login" });
-          }}
-        >
+        <form action={signOutAction}>
           <button
             type="submit"
             className="p-2 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
